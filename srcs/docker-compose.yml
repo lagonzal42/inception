@@ -1,0 +1,55 @@
+version: '3'
+
+services:
+  nginx:
+    build:
+      context: ./requirements/nginx
+      dockerfile: Dockerfile
+    volumes:
+      - /home/lagonzal/WordPress:/var/www/html
+    ports:
+      - "443:443"
+    restart: always
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - inception
+
+  wordpress:
+    build:
+      context: ./requirements/nginx
+      dockerfile: Dockerfile
+    environment:
+      - WORPRESS_DB_HOST=mariadb
+      - WORPRESS_DB_NAME=${DB_NAME}
+      - WORPRESS_DB_USER=${DB_USER}
+      - WORPRESS_DB_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - /home/lagonzal/WordPress:/var/www/html
+    restart: always
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - inception
+
+  mariadb:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - /home/lagonzal/db:/var/lib/mysql
+    restart: always
+    networks:
+      - inception
+
+networks:
+  inception:
+    driver: bridge
+

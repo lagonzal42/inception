@@ -1,55 +1,74 @@
-version: '3'
+version: '3.5'
+
+networks:
+  inception:
+    name: inception
+    driver: bridge
+
+volumes:
+  wordpress:
+    name: wordpress
+    driver_opts:
+      device: /home/larra/data/wordpress
+      o: bind
+      type: none
+  db:
+    name: db
+    driver_opts:
+      device: /home/larra/data/db
+      o: bind
+      type: none 
+
 
 services:
   nginx:
+    container_name: nginx
     build:
       context: ./requirements/nginx
       dockerfile: Dockerfile
+    depends_on:
+      - wordpress
+    image: nginx:1.0
     volumes:
-      - /home/lagonzal/WordPress:/var/www/html
+      - wordpress:/var/www/html
     ports:
       - "443:443"
     restart: always
-    depends_on:
-      mariadb:
-        condition: service_healthy
     networks:
       - inception
 
   wordpress:
+    container_name: wordpress
     build:
-      context: ./requirements/nginx
+      context: ./requirements/wordpress
       dockerfile: Dockerfile
-    environment:
-      - WORPRESS_DB_HOST=mariadb
-      - WORPRESS_DB_NAME=${DB_NAME}
-      - WORPRESS_DB_USER=${DB_USER}
-      - WORPRESS_DB_PASSWORD=${DB_PASSWORD}
-    volumes:
-      - /home/lagonzal/WordPress:/var/www/html
-    restart: always
     depends_on:
       mariadb:
         condition: service_healthy
+    image: wordpress:1.0
+    env_file: .env
+    volumes:
+      - wordpress:/var/www/html
+    restart: always
     networks:
       - inception
 
   mariadb:
+    container_name: mariadb
     build:
-      context: .
+      context: ./requirements/mariadb
       dockerfile: Dockerfile
-    environment:
-      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${DB_NAME}
-      - MYSQL_USER=${DB_USER}
-      - MYSQL_PASSWORD=${DB_PASSWORD}
+    image: mariadb:1.0
+    env_file: .env
     volumes:
-      - /home/lagonzal/db:/var/lib/mysql
+      - db:/var/lib/mysql
     restart: always
     networks:
       - inception
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-p$DB_ROOT_PASSWORD"]
+      timeout: 5s
+      retries: 3
 
-networks:
-  inception:
-    driver: bridge
+
 

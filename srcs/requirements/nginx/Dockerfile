@@ -8,9 +8,12 @@ RUN apt-get update && \
     rm -fr /var/lib/apt/lists/*
 
 # Generate openssl key and certificate
-RUN openssl gepkey -algorithm RSA -out /etc/nginx/server.key && \
-    openssl req -new -key /etc/nginx/server.csr -subj "/CN=lagonzal" && \
-    openssl x509 -req -days 365 -in /etc/nginx/server.csr - signkey /etc/nginx/server.key -out /etc/nginx/server.crt
+RUN openssl genrsa -out /etc/nginx/server.key && \
+    openssl req -new -key /etc/nginx/server.key -subj "/CN=lagonzal" -out /etc/nginx/server.csr && \
+    openssl x509 -req -days 365 -in /etc/nginx/server.csr -signkey /etc/nginx/server.key -out /etc/nginx/server.crt
+RUN openssl genrsa -out /etc/nginx/server.key && \
+    openssl req -new -key /etc/nginx/server.key -subj "/CN=lagonzal" -out /etc/nginx/server.csr && \
+    openssl x509 -req -days 365 -in /etc/nginx/server.csr -signkey /etc/nginx/server.key -out /etc/nginx/server.crt
 
 # Set nginx configuration
 COPY ./tools/conf/nginx.conf /etc/nginx/nginx.conf

@@ -4,17 +4,24 @@ FROM debian:buster-slim AS mariadb
 # Update and install necessary packages and remove the cache in order to make the image smaller
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y mariadb-server && \
+    apt-get install -y mariadb-server mariadb-client && \
     rm -fr /var/lib/apt/lists/*
 
-# Setting enviroment
-ENV MYSQL_ROOT_PASSWORD=rootpassword\
-    MYSQL_DATABASE=wordpress\
-    MYSQL_USER=wordpress\
-    MYSQL_PASSWORD=password\
-
-# Expose mariadb ports
 EXPOSE 3306
 
-HEALTHCHECK --interval=30s --timeout=5s \
-    CMD mysqladmin ping -h localhosrt || exit 1
+RUN sed -i 's/^socket\s*=.*/socket=\/var\/run\/mysqld\/mysqld.sock/' /etc/mysql/mariadb.conf.d/50-server.cnf
+
+RUN sed -i "s/bind-address = 127.0.0.1/bind-address = 0.0.0.0/" /etc/mysql/mariadb.conf.d/50-server.cnf
+
+#Comenta lineas inecesarias en 50-server.cnf  para permitir conexiones externas
+RUN sed -i "s/skip-networking/#skip-networking/g" /etc/mysql/mariadb.conf.d/50-server.cnf
+
+#Establece el puerto 3306
+RUN sed -i "s/#\?port\s*=.*/port=3306/" /etc/mysql/mariadb.conf.d/50-server.cnf
+
+
+COPY entrypoint.sh /tmp/entrypoint.sh
+
+RUN chmod +x /tmp/entrypoint.sh && /tmp/entrypoint.sh
+
+ENTRYPOINT ["exec /usr/bin/mysqld --user=root --console --skip-name-resolve --skip-networking=0 \"$@\""]

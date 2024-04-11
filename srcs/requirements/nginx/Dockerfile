@@ -1,9 +1,8 @@
 # Selecting the image
-FROM debian:bullseye-slim AS nginx
+FROM debian:buster-slim AS nginx
 
 # Update and install necessary packages and remove the cache in order to make the image smaller
 RUN apt-get update && \
-    apt-get upgrade -y && \
     apt-get install -y nginx openssl && \
     rm -fr /var/lib/apt/lists/*
 

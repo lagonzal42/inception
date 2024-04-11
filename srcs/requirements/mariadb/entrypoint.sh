@@ -1,3 +1,5 @@
+#!/bin/sh
+
 if [ -d "/var/run/mysqld" ]; then
 	echo "mysqld exists, skipping creation"
 else
@@ -26,4 +28,7 @@ else
 	mysql < db1.sql
 fi
 
-exec /usr/bin/mysqld --user=root --console --skip-name-resolve --skip-networking=0 "$@"
+kill $(cat /var/run/mysqld/mysqld.pid)
+
+
+mysqld

@@ -22,9 +22,9 @@
 # RUN sed -i "s/#\?port\s*=.*/port=3306/" /etc/mysql/mariadb.conf.d/50-server.cnf
 
 
-# COPY entrypoint.sh /tmp/entrypoint.sh
+# COPY dbCreate.sh /tmp/dbCreate.sh
 
-# RUN chmod +x /tmp/entrypoint.sh && /tmp/entrypoint.sh
+# RUN chmod +x /tmp/dbCreate.sh && /tmp/dbCreate.sh
 
 #ENTRYPOINT ["exec /usr/bin/mysqld --user=root --console --skip-name-resolve --skip-networking=0 \"$@\""]
 
@@ -37,10 +37,10 @@ RUN apt-get update && \
     rm -fr /var/lib/apt/lists/*
 
 COPY ./50-server.cnf /etc/mysql/mariadb.conf.d/
-COPY ./entrypoint.sh /
+COPY ./dbCreate.sh /
 
-RUN chmod +x /entrypoint.sh
+RUN chmod +x /dbCreate.sh
 
 RUN ls -l /
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/dbCreate.sh"]

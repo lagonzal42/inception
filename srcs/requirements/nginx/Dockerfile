@@ -1,5 +1,5 @@
 # Selecting the image
-FROM debian:bullseye AS nginx
+FROM debian:bullseye
 
 # Update and install necessary packages and remove the cache in order to make the image smaller
 RUN apt-get update && \
@@ -18,7 +18,5 @@ RUN openssl genrsa -out /etc/nginx/server.key && \
 COPY ./tools/conf/nginx.conf /etc/nginx/nginx.conf
 
 # Expose ports
-EXPOSE 443
-EXPOSE 9000
 
 ENTRYPOINT nginx -g "daemon off;"

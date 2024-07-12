@@ -1,6 +1,6 @@
 
 all:
-	mkdir -p /home/data/db /home/data/wordpress
+	mkdir -p /home/cbustama/data/db /home/cbustama/data/wordpress
 	docker-compose -f ./srcs/docker-compose.yml up -d 
 down: 
 	docker-compose -f ./srcs/docker-compose.yml down 

@@ -1,0 +1,69 @@
+version: '3.5'
+
+networks:
+  inception:
+    name: inception
+    driver: bridge
+
+volumes:
+  wordpress:
+    name: wordpress
+    driver_opts:
+      device: /home/larra/data/wordpress
+      o: bind
+      type: none
+  db:
+    name: db
+    driver_opts:
+      device: /home/larra/data/db
+      o: bind
+      type: none 
+
+
+services:
+  nginx:
+    container_name: nginx
+    build:
+      context: ./requirements/nginx
+      dockerfile: Dockerfile
+    depends_on:
+      - wordpress
+    image: nginx:1.0
+    volumes:
+      - wordpress:/var/www/html
+    ports:
+      - "443:443"
+    restart: always
+    networks:
+      - inception
+
+  wordpress:
+    container_name: wordpress
+    build:
+      context: ./requirements/wordpress
+      dockerfile: Dockerfile
+    depends_on:
+      - mariadb
+    image: wordpress:1.0
+    env_file: .env
+    volumes:
+      - wordpress:/var/www/html
+    restart: always
+    networks:
+      - inception
+
+  mariadb:
+    container_name: mariadb
+    build:
+      context: ./requirements/mariadb
+      dockerfile: Dockerfile
+    image: mariadb:1.0
+    env_file: .env
+    volumes:
+      - db:/var/lib/mysql
+    restart: always
+    networks:
+      - inception
+
+
+

@@ -1,46 +1,52 @@
-# Selecting the image 
-# FROM debian:buster-slim AS mariadb
+# FROM debian:bullseye
 
-# # Update and install necessary packages and remove the cache in order to make the image smaller
-# RUN apt-get update && \
-#     apt-get upgrade -y && \
-#     apt-get install -y mariadb-server && \
-#     rm -fr /var/lib/apt/lists/*
+# # Install MariaDB server and client
+# RUN apt-get update -y
+# RUN apt-get upgrade -y
+# RUN apt-get install mariadb-server -y
+# RUN apt-get install mariadb-client -y
+# RUN rm -rf /var/lib/apt/lists/*
 
+# # Give permissions on specific folders
+# RUN mkdir -p /var/run/mysqld
+# RUN chown -R mysql:mysql /var/run/mysqld
+# RUN chmod 777 /var/run/mysqld
+
+# # Set the working directory inside the container
+# #RUN mkdir -p /etc/mysql
+# #WORKDIR /etc/mysql/
+
+# # Copy the MariaDB configuration
+# COPY tools/my.cnf /etc/mysql/my.cnf
+
+# # Copy the init DB script
+# COPY tools/dbCreate.sh /tmp
+# COPY tools/init.sql /tmp
+
+# # Grant execute permissions to the init DB script
+# RUN chmod +x /tmp/dbCreate.sh
+
+# # Expose the default MariaDB port
 # EXPOSE 3306
 
-# RUN sed -i 's/^socket\s*=.*/socket=\/var\/run\/mysqld\/mysqld.sock/' /etc/mysql/mariadb.conf.d/50-server.cnf
+# # Start the MariaDB server on container startup
+# ENTRYPOINT [ "/tmp/dbCreate.sh" ]
 
-# RUN rm -fr 
+## DOCKERFILE FILE ##
 
-# RUN sed -i "s/bind-address = 127.0.0.1/bind-address = 0.0.0.0/" /etc/mysql/mariadb.conf.d/50-server.cnf
+FROM    debian:bullseye
 
-# #Comenta lineas inecesarias en 50-server.cnf  para permitir conexiones externas
-# RUN sed -i "s/skip-networking/#skip-networking/g" /etc/mysql/mariadb.conf.d/50-server.cnf
+RUN     apt-get update -y && apt-get upgrade -y && apt-get install mariadb-server mariadb-client -y && \
+        mkdir -p /var/run/mysqld && \
+        chown -R mysql:mysql /var/run/mysqld && chown -R mysql:mysql /etc/mysql/
 
-# #Establece el puerto 3306
-# RUN sed -i "s/#\?port\s*=.*/port=3306/" /etc/mysql/mariadb.conf.d/50-server.cnf
+COPY    tools/dbCreate.sh /tmp/
+COPY    tools/init.sql /tmp/
+COPY    tools/my.cnf /etc/mysql
 
+RUN     chown -R mysql:mysql /tmp/ && \
+        chown -R mysql:mysql /etc/mysql
 
-# COPY dbCreate.sh /tmp/dbCreate.sh
+USER    mysql
 
-# RUN chmod +x /tmp/dbCreate.sh && /tmp/dbCreate.sh
-
-#ENTRYPOINT ["exec /usr/bin/mysqld --user=root --console --skip-name-resolve --skip-networking=0 \"$@\""]
-
-# Selecting the image 
- FROM debian:buster-slim AS mariadb
-
-# Update and install necessary packages and remove the cache in order to make the image smaller
-RUN apt-get update && \
-    apt-get install -y mariadb-server && \
-    rm -fr /var/lib/apt/lists/*
-
-COPY ./50-server.cnf /etc/mysql/mariadb.conf.d/
-COPY ./dbCreate.sh /
-
-RUN chmod +x /dbCreate.sh
-
-RUN ls -l /
-
-ENTRYPOINT ["/dbCreate.sh"]
+ENTRYPOINT ["sh", "/tmp/dbCreate.sh"]

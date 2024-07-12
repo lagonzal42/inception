@@ -1,5 +1,5 @@
 # Selecting the image
-FROM debian:buster-slim AS nginx
+FROM debian:bullseye AS nginx
 
 # Update and install necessary packages and remove the cache in order to make the image smaller
 RUN apt-get update && \

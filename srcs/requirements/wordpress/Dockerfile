@@ -1,5 +1,5 @@
 # Selecting the image
-FROM debian:buster-slim AS wordpress
+FROM debian:bullseye AS wordpress
  
 # Update and install necessary packages and remove the cache in order to make the image smaller
 RUN apt-get update && \

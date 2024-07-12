@@ -19,6 +19,5 @@ COPY ./tools/conf/nginx.conf /etc/nginx/nginx.conf
 
 # Expose ports
 EXPOSE 443
-EXPOSE 9000
 
 ENTRYPOINT nginx -g "daemon off;"

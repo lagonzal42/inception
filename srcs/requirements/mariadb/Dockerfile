@@ -49,4 +49,6 @@ RUN     chown -R mysql:mysql /tmp/ && \
 
 USER    mysql
 
+EXPOSE 3306
+
 ENTRYPOINT ["sh", "/tmp/dbCreate.sh"]

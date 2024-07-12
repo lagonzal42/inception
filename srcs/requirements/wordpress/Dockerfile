@@ -6,17 +6,12 @@ RUN apt-get update && \
     apt-get install -y php php-fpm php-mysql curl && \
     rm -fr /var/lib/apt/lists/*
 
-RUN mkdir -p /var/www/html && \
-    curl -o /tmp/wordpress.tar.gz -sSL https://wordpress.org/latest.tar.gz && \
-    tar xvzf /tmp/wordpress.tar.gz -C /var/www/html --strip-components=1 && \
-    rm /tmp/wordpress.tar.gz
 
-
+RUN mkdir -p /var/www/html    
 RUN chown -R www-data:www-data /var/www/html
 
 # Expose ports
 EXPOSE 9000
-EXPOSE 3306
 
 COPY entrypoint.sh /entrypoint.sh
 

@@ -9,13 +9,13 @@ volumes:
   wordpress:
     name: wordpress
     driver_opts:
-      device: /home/cbustama/data/wordpress
+      device: /home/larra/data/wordpress
       o: bind
       type: none
   db:
     name: db
     driver_opts:
-      device: /home/cbustama/data/db
+      device: /home/larra/data/db
       o: bind
       type: none 
 
@@ -42,12 +42,11 @@ services:
     build:
       context: ./requirements/wordpress
       dockerfile: Dockerfile
-    depends_on:
-      - mariadb
-    image: wordpress
-    env_file: .env
-    volumes:
+    depends_on: 
+    - mariadb
+    volumes: 
       - wordpress:/var/www/html
+    env_file: .env
     restart: always
     networks:
       - inception

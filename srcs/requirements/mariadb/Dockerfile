@@ -47,6 +47,8 @@ COPY    tools/my.cnf /etc/mysql
 RUN     chown -R mysql:mysql /tmp/ && \
         chown -R mysql:mysql /etc/mysql
 
+
+
 USER    mysql
 
 ENTRYPOINT ["sh", "/tmp/dbCreate.sh"]
